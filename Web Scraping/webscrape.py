@@ -7,7 +7,6 @@ Created on Tue Feb 22 15:22:12 2022
 
 from selenium import webdriver
 import pandas as pd
-import time
 import os 
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime as dt
@@ -16,6 +15,21 @@ from selenium.common.exceptions import TimeoutException
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+import time
+from fake_useragent import UserAgent
+
+
+# from selenium import webdriver
+# import chromedriver_autoinstaller
+
+
+# chromedriver_autoinstaller.install()  # Check if the current version of chromedriver exists
+#                                       # and if it doesn't exist, download it automatically,
+#                                       # then add chromedriver to path
+
+# driver = webdriver.Chrome()
+# driver.get("http://www.python.org")
+# assert "Python" in driver.title
 
 
 
@@ -24,19 +38,26 @@ output_directory = dir_path + "\\data" # Data will be printed out here
 if not os.path.exists(output_directory): # create the folder if not exists already
     os.mkdir(output_directory)
 
-datelist = pd.date_range(dt.today(), periods=5).tolist() # 7 days forward
+datelist = pd.date_range(dt.today(), periods=1).tolist() # 7 days forward
 datelist_as_strings = [x.strftime("%Y-%m-%d") for x in datelist]
 
 main_dataframe = pd.DataFrame()
 city_codes = pd.read_excel("city_codes.xlsx")
 city_codes.drop("Unnamed: 0",axis=1,inplace = True)    
-options = webdriver.FirefoxOptions()
-options.headless = True
-browser = webdriver.Firefox(options=options)
+options = webdriver.ChromeOptions()
+# options.headless = True
+options.add_argument('--disable-blink-features=AutomationControlled')
+options.add_argument("--disable-extensions")
+options.add_experimental_option('useAutomationExtension', False)
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_argument(f'user-agent={userAgent}')
+
+chrome_driver = webdriver.Chrome(options=options)
+browser = webdriver.Chrome(options=options)
 
 
-#
-for comb in permutations(city_codes["city_code"][0:20], 2): # dont use combination, think of istanbul-siirt, siirt-istanbul routes
+#%%
+for comb in permutations(city_codes["city_code"], 2): # dont use combination, think of istanbul-siirt, siirt-istanbul routes
     start=dt.now()
     
     data_collected_at = dt.now()
@@ -52,13 +73,28 @@ for comb in permutations(city_codes["city_code"][0:20], 2): # dont use combinati
         
         # Go to page and wait loading
         browser.get(urlpage)    
-        browser.maximize_window()
+        #browser.maximize_window()
+        time.sleep(2)
+            
+        error_pop_up_xpath = '/html/body/main/div[9]/div/div[2]/div/button[1]'
+        
+        # CHANGE THIS TO : Cant find data i want, restart the progress
+        if len(browser.find_elements(By.XPATH, error_pop_up_xpath)) > 0: # if Error pop up shows up, then wait, restrart
+            print('ERROR')    
+            time.sleep(60)
+            browser.close()
+            browser = webdriver.Chrome(options=options)
+          
+        
         try:
             element = WebDriverWait(browser, 8).until(
         EC.presence_of_element_located((By.XPATH, "/html/body/main/ul/li/div[1]/div[1]/div"))
         )
         except TimeoutException:
             empty_page = True 
+        
+        if empty_page:
+            continue
         
         table_list = []
         

@@ -1,42 +1,47 @@
 from City import City
 from CityManager import CityManager
-from RouteManager import RouteManager
-from GeneticAlgorithmSolver import GeneticAlgorithmSolver
 import pandas as pd
 import os
-from itertools import permutations
 from Algorithms import enumeration
+from scipy.spatial.distance import cdist
+import numpy as np
 
-# ENUMERATION APPROACH
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import time
+from tqdm import tqdm_notebook
 
 
+from delivery import *
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     
-#     otobus_data = pd.read_excel('otobus_data.xlsx')
-#     plane_data = pd.read_excel('plane_data.xlsx')
+    otobus_data = pd.read_excel('otobus_data.xlsx')
+    plane_data = pd.read_excel('plane_data.xlsx')
     
-    
-#     main_data = pd.concat([otobus_data,plane_data])
-    
-#     cm = CityManager()
-#     cm.build_country(main_data)
-    
-#     # Define source node
-#     source_node = list(cm.city_list)[0]
-    
-#     # Define locations the salesman will go (improvement: Do this Randomly)
-#     locations_to_travel = list(cm.city_list)[1:9]
-    
-#     enumeration(cm,source_node,locations_to_travel)
-    
-    
-#     # rm = RouteManager(cm, 50)
+    main_data = pd.concat([otobus_data,plane_data])
+    main_data = main_data.replace('antakya_hatay', 'hatay')
 
-#     # print(rm.find_best_route().calc_route_distance())
+    
+    cm = CityManager()
+    cm.build_country(main_data)
+    
+    # Define source node
+    source_node = list(cm.city_list)[0]
+    
+    # Define locations the salesman will go (improvement: Do this Randomly)
+    locations_to_travel = list(cm.city_list)[1:4]
+    
 
-#     # gas = GeneticAlgorithmSolver(cm, 50)
-#     # rm = gas.solve(rm)
-
-#     # print(rm.find_best_route().calc_route_distance())
-#     # print(rm.find_best_route())
+    #Reinforcement Learning
+    #env = DeliveryEnvironment(n_stops = 10)
+    
+    env = DeliveryEnvironment(cities = cm.city_list,method = "cost",main_data = main_data , max_box = 10)
+    env.render()
+    
+    
+    
+        

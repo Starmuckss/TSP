@@ -5,6 +5,9 @@ Created on Tue Mar 15 11:06:33 2022
 @author: HP
 """
 class Journey:
+    # improvement: Save link of the journey, for easy purchase option
+    # improvement: Check if the journey has available seat (is the bus, plane full or not)
+    
     def __init__(self, start, destination):
         self.start = start
         self.destination = destination

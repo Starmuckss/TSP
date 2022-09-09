@@ -22,18 +22,18 @@ output_directory = dir_path + "\\data" # Data will be printed out here
 if not os.path.exists(output_directory): # create the folder if not exists already
     os.mkdir(output_directory)
 
-datelist = pd.date_range(datetime.datetime.today() + datetime.timedelta(days=1), periods=5).tolist() # 7 days forward
+datelist = pd.date_range(datetime.datetime.today() + datetime.timedelta(days=1), periods=1).tolist() # 7 days forward
 datelist_as_strings = [x.strftime("%Y%m%d") for x in datelist]
 
 main_dataframe = pd.DataFrame()
 ucus_noktaları = pd.read_excel("ucus_noktaları.xlsx")
 ucus_noktaları.drop("Unnamed: 0",axis=1,inplace = True)    
 options = webdriver.FirefoxOptions()
-options.headless = True
+#options.headless = True
 import timeit
 browser = webdriver.Firefox(options=options)
 
-for comb in permutations(ucus_noktaları["city_code"][0:20], 2): # dont use combination, think of istanbul-siirt, siirt-istanbul routes
+for comb in permutations(ucus_noktaları["city_code"][0:81], 2): # dont use combination, think of istanbul-siirt, siirt-istanbul routes
     start=datetime.datetime.now()
     
     data_collected_at = datetime.datetime.now()

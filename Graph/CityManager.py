@@ -1,6 +1,8 @@
 from City import City
 from Journey import Journey
 import random
+import pandas as pd
+
 class CityManager:
     def __init__(self):
         self.city_list = list()
@@ -9,14 +11,11 @@ class CityManager:
     def add(self, city):
         self.city_list.append(city)
 
-
     def __getitem__(self, index):
         return self.city_list[index]
 
     def __len__(self):
         return len(self.city_list)
-    
-    
         
     def build_country(self,dataframe):
         for _,row in dataframe.iterrows():
@@ -43,6 +42,24 @@ class CityManager:
                     city.assing_journey_to_a_node(journey)
         for city in self.city_list:
             city.build_adjacent_node_list()
+        self.build_city_locations()  
+    
+    def build_city_locations(self):
+        
+        Tr2Eng = str.maketrans("çğıöşüÇĞIÖŞÜ", "cgiosuCGIOSU") # dictionary in order to translate turkish letters to english ones
+        
+        df = pd.read_csv('tr.csv')
+        df["city"] = df["city"].apply(lambda x:x.lower())  #string adjustments
+        df["city"] = df["city"].apply(lambda x:x.translate(Tr2Eng))    
+        
+        for city in self.city_list:       
+            lat = df.loc[df['city'] == city.city_name, 'lat'].iloc[0]
+            lng = df.loc[df['city'] == city.city_name, 'lng'].iloc[0]
+            
+            city.assign_city_location(lat = lat, lng = lng)
+            #print(city.city_name,city.city_lat,city.city_lng)
+            
+            
     def build_to_be_visited(self,city_list,number_of_cities):
         random.seed(42)        
         cities_to_visit = random.sample(city_list[1:], number_of_cities)
